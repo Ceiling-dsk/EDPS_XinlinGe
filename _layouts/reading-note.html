@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf9f6">
+  <meta name="description" content="{{ page.summary | escape }}">
+  <title>{{ page.title | escape }}</title>
+  <link rel="icon" href="{{ '/assets/favicon.png' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/blog.css' | relative_url }}">
+  {% if page.blog_index %}<script src="{{ '/assets/blog.js' | relative_url }}" defer></script>{% endif %}
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="masthead" lang="en"><div class="wrap mast-inner">
+  <a class="brand" href="{{ '/' | relative_url }}" aria-label="Xinlin Ge, homepage">
+    <span class="brand-mark" aria-hidden="true">Xg</span><span>Xinlin Ge</span>
+  </a>
+  <nav class="main-nav" aria-label="Main navigation">
+    <a href="{{ '/' | relative_url }}">Home</a><a href="{{ '/' | relative_url }}#work-log">Work log</a><a href="{{ '/blog/' | relative_url }}" aria-current="page">Blog</a><a href="{{ '/about/' | relative_url }}">About</a>
+  </nav>
+</div></header>
+<main id="main-content">
+{% if page.blog_index %}
+{{ content }}
+{% else %}
+<article class="blog-page blog-article">
+  <p class="blog-back"><a href="{{ '/blog/' | relative_url }}">All reading notes</a></p>
+  <header class="blog-article-heading">
+    <p class="blog-publication">{{ page.conference | escape }} {{ page.year | escape }}
+      <span>·</span> {% if page.sample %}Sample guide{% else %}Reading note{% endif %}
+      <span>·</span> <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: '%b %-d, %Y' }}</time></p>
+    <h1 lang="{{ page.language | escape }}">{{ page.title | escape }}</h1>
+    <p class="blog-standfirst" lang="{{ page.language | escape }}">{{ page.summary | escape }}</p>
+  </header>
+  <div class="blog-reading-grid">
+    <aside class="blog-source" aria-label="Paper information">
+      <h2>Original paper</h2>
+      <cite><a href="{{ page.paper_url | escape }}">{{ page.paper_title | escape }}</a></cite>
+      <p>{{ page.paper_authors | escape }}</p>
+      <p>{{ page.conference | escape }} {{ page.year | escape }}</p>
+    </aside>
+    <div class="blog-prose" lang="{{ page.language | escape }}">{{ content }}</div>
+  </div>
+</article>
+{% endif %}
+</main>
+<footer id="contact" class="site-footer" lang="en"><div class="wrap footer-inner">
+  <span class="footer-signature">Xinlin Ge</span>
+  <div class="footer-links"><a href="mailto:gexinlindsk@gmail.com">Email</a><a href="https://github.com/Ceiling-dsk">GitHub</a></div>
+</div></footer>
+</body>
+</html>

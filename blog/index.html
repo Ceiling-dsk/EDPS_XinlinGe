@@ -1,0 +1,43 @@
+---
+layout: reading-note
+title: Reading notes
+summary: Conference paper reading notes on learning and AI.
+blog_index: true
+---
+{% assign notes_by_date = site.notes | sort: 'date' | reverse %}
+{% assign venues = site.notes | map: 'conference' | uniq | sort %}
+<div class="blog-page">
+  <header class="blog-title">
+    <h1>Reading notes</h1>
+    <p>Conference papers on learning, AI, and the questions they raise.</p>
+  </header>
+  {% if notes_by_date.size > 0 %}
+  <div class="blog-filter" hidden>
+    <span id="conference-label">Conference</span>
+    <div role="group" aria-labelledby="conference-label">
+      <button type="button" data-venue="" aria-pressed="true">All</button>
+      {% for venue in venues %}
+      <button type="button" data-venue="{{ venue | escape }}" aria-pressed="false">{{ venue | escape }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  <p class="blog-status" role="status"></p>
+  <ul class="blog-entries">
+    {% for note in notes_by_date %}
+    <li class="blog-row" data-conference="{{ note.conference | escape }}">
+      <div class="blog-catalog">
+        <span>{{ note.conference | escape }} {{ note.year | escape }}</span>
+        <time datetime="{{ note.date | date: '%Y-%m-%d' }}">{{ note.date | date: '%b %-d, %Y' }}</time>
+      </div>
+      <div class="blog-entry">
+        <p class="blog-guide-type">{% if note.sample %}Sample guide{% else %}Reading note{% endif %}</p>
+        <h2 lang="{{ note.language | escape }}"><a href="{{ note.url | relative_url | escape }}">{{ note.title | escape }}</a></h2>
+        <p class="blog-summary" lang="{{ note.language | escape }}">{{ note.summary | escape }}</p>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No reading notes yet.</p>
+  {% endif %}
+</div>

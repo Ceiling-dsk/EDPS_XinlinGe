@@ -1,0 +1,7 @@
+{% assign newest_notes = site.notes | sort: 'date' | reverse %}
+{% for note in newest_notes limit:2 %}
+<li>
+  <a href="{{ note.url | relative_url | escape }}" lang="{{ note.language | escape }}">{{ note.title | escape }}</a>
+  <span>{{ note.conference | escape }} {{ note.year | escape }} · {% if note.sample %}Sample guide{% else %}Reading note{% endif %}</span>
+</li>
+{% endfor %}

@@ -1,0 +1,22 @@
+title: Xinlin Ge
+url: https://ceiling-dsk.github.io
+baseurl: /EDPS_XinlinGe
+timezone: America/Denver
+markdown: kramdown
+
+collections:
+  notes:
+    output: true
+    permalink: /blog/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: notes
+    values:
+      layout: reading-note
+      language: zh-CN
+      sample: false
+
+exclude:
+  - README.md
