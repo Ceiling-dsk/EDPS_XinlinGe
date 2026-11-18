@@ -9,6 +9,7 @@
   <link rel="icon" href="{{ '/assets/favicon.png' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/blog.css' | relative_url }}">
+  <script defer src="{{ '/assets/visits.js' | relative_url }}"></script>
   {% if page.blog_index %}<script src="{{ '/assets/blog.js' | relative_url }}" defer></script>{% endif %}
 </head>
 <body>
@@ -25,22 +26,43 @@
 {% if page.blog_index %}
 {{ content }}
 {% else %}
+{% assign venue = page.venue | default: page.conference | strip %}
+{% assign year = page.year | append: '' | strip %}
+{% assign venue_type = page.venue_type | default: '' | strip %}
+{% if venue_type == empty and page.conference %}{% assign venue_type = 'conference' %}{% endif %}
+{% assign paper_title = page.paper_title | default: '' | strip %}
+{% assign paper_url = page.paper_url | default: '' | strip %}
+{% assign authors = page.paper_authors | default: '' | strip %}
+{% assign has_source = false %}
+{% if venue != empty or year != empty or paper_title != empty or paper_url != empty or authors != empty %}{% assign has_source = true %}{% endif %}
 <article class="blog-page blog-article">
   <p class="blog-back"><a href="{{ '/blog/' | relative_url }}">All reading notes</a></p>
   <header class="blog-article-heading">
-    <p class="blog-publication">{{ page.conference | escape }} {{ page.year | escape }}
-      <span>·</span> {% if page.sample %}Sample guide{% else %}Reading note{% endif %}
+    <p class="blog-publication">{% if venue != empty or year != empty %}{{ venue | escape }} {{ year | escape }} <span>·</span>{% endif %}
+      {% if page.sample %}Sample guide{% else %}Reading note{% endif %}
       <span>·</span> <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: '%b %-d, %Y' }}</time></p>
     <h1 lang="{{ page.language | escape }}">{{ page.title | escape }}</h1>
     <p class="blog-standfirst" lang="{{ page.language | escape }}">{{ page.summary | escape }}</p>
+    {% if page.tags and page.tags != empty %}
+      <ul class="blog-topics" aria-label="Topic tags">
+        {% for tag in page.tags %}{% assign topic = tag | strip %}{% if topic != empty %}
+        <li><a href="{{ '/blog/' | relative_url }}?tag={{ topic | cgi_escape | escape }}">{{ topic | escape }}</a></li>
+        {% endif %}{% endfor %}
+      </ul>
+    {% endif %}
   </header>
-  <div class="blog-reading-grid">
+  <div class="blog-reading-grid{% unless has_source %} blog-text-only{% endunless %}">
+    {% if has_source %}
     <aside class="blog-source" aria-label="Paper information">
       <h2>Original paper</h2>
-      <cite><a href="{{ page.paper_url | escape }}">{{ page.paper_title | escape }}</a></cite>
-      <p>{{ page.paper_authors | escape }}</p>
-      <p>{{ page.conference | escape }} {{ page.year | escape }}</p>
+      {% if paper_url != empty %}<cite><a href="{{ paper_url | escape }}">{{ paper_title | default: 'View paper' | escape }}</a></cite>
+      {% elsif paper_title != empty %}<cite>{{ paper_title | escape }}</cite>{% endif %}
+      {% if authors != empty %}<p>{{ authors | escape }}</p>{% endif %}
+      {% if venue != empty or year != empty %}
+      <p>{% if venue != empty %}<a href="{{ '/blog/' | relative_url }}?tag={{ venue | cgi_escape | escape }}">{{ venue | escape }}</a>{% endif %} {{ year | escape }}{% if venue_type != empty %} · {{ venue_type | capitalize | escape }}{% endif %}</p>
+      {% endif %}
     </aside>
+    {% endif %}
     <div class="blog-prose" lang="{{ page.language | escape }}">{{ content }}</div>
   </div>
 </article>

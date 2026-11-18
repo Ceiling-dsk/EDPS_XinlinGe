@@ -1,7 +1,9 @@
 ---
 title: "AI 导师指出错误之后，学生知道下一步怎么做吗？"
 date: "2026-11-18"
-conference: "NAACL"
+venue: "NAACL"
+venue_type: conference
+tags: ["AI tutors", "Tutor evaluation", "Mathematics education"]
 year: "2025"
 paper_title: "Unifying AI Tutor Evaluation: An Evaluation Taxonomy for Pedagogical Ability Assessment of LLM-Powered AI Tutors"
 paper_authors: "Kaushal Kumar Maurya, Kv Aditya Srivatsa, Kseniia Petukhova, Ekaterina Kochmar"

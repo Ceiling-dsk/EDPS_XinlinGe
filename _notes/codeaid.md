@@ -1,7 +1,9 @@
 ---
 title: "CodeAid 怎样给编程初学者提示？"
 date: "2026-11-18"
-conference: "CHI"
+venue: "CHI"
+venue_type: conference
+tags: ["AI tutors", "Programming education"]
 year: "2024"
 paper_title: "CodeAid: Evaluating a Classroom Deployment of an LLM-based Programming Assistant that Balances Student and Educator Needs"
 paper_authors: "Majeed Kazemitabaar, Runlong Ye, Xiaoning Wang, Austin Z. Henley, Paul Denny, Michelle Craig, Tovi Grossman"

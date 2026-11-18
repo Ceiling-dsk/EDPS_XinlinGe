@@ -1,38 +1,49 @@
 ---
 layout: reading-note
 title: Reading notes
-summary: Conference paper reading notes on learning and AI.
+summary: Research reading notes on learning and AI, with publication sources and topic tags.
 blog_index: true
 ---
 {% assign notes_by_date = site.notes | sort: 'date' | reverse %}
-{% assign venues = site.notes | map: 'conference' | uniq | sort %}
 <div class="blog-page">
   <header class="blog-title">
     <h1>Reading notes</h1>
-    <p>Conference papers on learning, AI, and the questions they raise.</p>
+    <p>Research on learning, AI, and the questions it raises.</p>
+    <a class="blog-desk" href="https://xinlin-private-worklog.trail-lab-5383.chatgpt.site/writing/">Writing desk</a>
   </header>
   {% if notes_by_date.size > 0 %}
   <div class="blog-filter" hidden>
-    <span id="conference-label">Conference</span>
-    <div role="group" aria-labelledby="conference-label">
-      <button type="button" data-venue="" aria-pressed="true">All</button>
-      {% for venue in venues %}
-      <button type="button" data-venue="{{ venue | escape }}" aria-pressed="false">{{ venue | escape }}</button>
-      {% endfor %}
+    <span id="tags-label">Tags</span>
+    <div role="group" aria-labelledby="tags-label" aria-describedby="tags-help">
+      <button type="button" data-all aria-pressed="true">All</button>
     </div>
+    <p id="tags-help">Select tags to show notes that match all of them.</p>
   </div>
   <p class="blog-status" role="status"></p>
+  <p class="blog-no-matches" hidden>No notes match all the selected tags. Choose All to see every note.</p>
   <ul class="blog-entries">
     {% for note in notes_by_date %}
-    <li class="blog-row" data-conference="{{ note.conference | escape }}">
+    {% assign venue = note.venue | default: note.conference | strip %}
+    {% assign year = note.year | append: '' | strip %}
+    {% assign venue_type = note.venue_type %}
+    {% if venue_type == nil and note.conference %}{% assign venue_type = 'conference' %}{% endif %}
+    <li class="blog-row" data-source="{{ venue | escape }}">
       <div class="blog-catalog">
-        <span>{{ note.conference | escape }} {{ note.year | escape }}</span>
+        {% if venue != empty or year != empty %}<span>{{ venue | escape }} {{ year | escape }}</span>{% endif %}
+        {% if venue_type and venue_type != empty %}<small>{{ venue_type | capitalize | escape }}</small>{% endif %}
         <time datetime="{{ note.date | date: '%Y-%m-%d' }}">{{ note.date | date: '%b %-d, %Y' }}</time>
       </div>
       <div class="blog-entry">
         <p class="blog-guide-type">{% if note.sample %}Sample guide{% else %}Reading note{% endif %}</p>
         <h2 lang="{{ note.language | escape }}"><a href="{{ note.url | relative_url | escape }}">{{ note.title | escape }}</a></h2>
         <p class="blog-summary" lang="{{ note.language | escape }}">{{ note.summary | escape }}</p>
+        {% if note.tags and note.tags != empty %}
+        <ul class="blog-topics" aria-label="Topic tags">
+          {% for tag in note.tags %}{% assign topic = tag | strip %}{% if topic != empty %}
+          <li><a data-note-tag href="{{ '/blog/' | relative_url }}?tag={{ topic | cgi_escape | escape }}">{{ topic | escape }}</a></li>
+          {% endif %}{% endfor %}
+        </ul>
+        {% endif %}
       </div>
     </li>
     {% endfor %}

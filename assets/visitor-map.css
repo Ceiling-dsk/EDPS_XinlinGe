@@ -1,0 +1,25 @@
+.visitor-section { border-top: 1px solid var(--rule); padding-block: clamp(2.3rem, 4vw, 3.45rem); }
+.visitor-grid { display: grid; grid-template-columns: minmax(0, 2.35fr) minmax(13rem, 1fr); gap: clamp(1.4rem, 4.5vw, 4rem); align-items: start; }
+.visitor-grid figure { min-width: 0; margin: 0; }
+.visitor-world { display: block; width: 100%; height: auto; }
+.visitor-world path { fill: #d9dfd7; stroke: #faf9f6; stroke-width: .55; stroke-linejoin: round; fill-rule: evenodd; }
+.visitor-world [data-level="1"], .visitor-legend .level-1 { fill: #9ebca4; background: #9ebca4; }
+.visitor-world [data-level="2"], .visitor-legend .level-2 { fill: #5a866a; background: #5a866a; }
+.visitor-world [data-level="3"], .visitor-legend .level-3 { fill: #205641; background: #205641; }
+.visitor-legend .level-0 { background: #d9dfd7; }
+.visitor-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .4rem .8rem; margin-top: .75rem; font-size: .85rem; color: var(--muted); }
+.visitor-legend span { display: inline-flex; align-items: center; gap: .3rem; }
+.visitor-legend i { width: .8rem; height: .8rem; border: 1px solid #26382e35; border-radius: 2px; }
+.visitor-counts { min-width: 0; }
+.visitor-counts > p, .visitor-counts noscript p { color: var(--muted); margin: 0 0 .85rem; }
+.visitor-table-scroll { max-height: 19rem; overflow: auto; }
+.visitor-table-scroll[hidden] { display: none; }
+.visitor-table-scroll table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.visitor-table-scroll td, .visitor-table-scroll th { padding: .48rem .22rem; border-bottom: 1px solid var(--rule); text-align: left; overflow-wrap: anywhere; }
+.visitor-table-scroll thead th { font-weight: 650; color: var(--forest); position: sticky; top: 0; background: var(--paper); }
+.visitor-table-scroll tbody th { font-weight: 450; }
+.visitor-table-scroll td:last-child, .visitor-table-scroll thead th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+@media(max-width: 700px) {
+  .visitor-grid { grid-template-columns: 1fr; }
+  .visitor-table-scroll { max-height: 15rem; }
+}

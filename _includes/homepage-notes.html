@@ -1,7 +1,9 @@
 {% assign newest_notes = site.notes | sort: 'date' | reverse %}
 {% for note in newest_notes limit:2 %}
+{% assign venue = note.venue | default: note.conference | strip %}
+{% assign year = note.year | append: '' | strip %}
 <li>
   <a href="{{ note.url | relative_url | escape }}" lang="{{ note.language | escape }}">{{ note.title | escape }}</a>
-  <span>{{ note.conference | escape }} {{ note.year | escape }} · {% if note.sample %}Sample guide{% else %}Reading note{% endif %}</span>
+  <span>{% if venue != empty or year != empty %}{{ venue | escape }} {{ year | escape }} · {% endif %}{% if note.sample %}Sample guide{% else %}Reading note{% endif %}</span>
 </li>
 {% endfor %}
