@@ -10,12 +10,16 @@
 
 修改已发表的笔记时，打开对应的 Markdown 文件，点击铅笔图标。保留原文件名，已分享的文章链接就可以继续使用。
 
-## 更新工作记录日历
+## 工作记录与首页日历
 
-在装有 Work_log 的电脑上打开仓库根目录，运行以下命令。
+平时在私有工作记录网站登录后填写或修改日志。手机和电脑使用同一个账户即可继续记录。首页的 **Open my work log** 也通向这个入口。[打开私有工作记录](https://xinlin-private-worklog.trail-lab-5383.chatgpt.site/)
+
+线上工作记录会把每天的条数同步到公开日历。访问或刷新主页即可查看，切回已打开的主页也会重新读取。公开数据包括统计截止日期和每日条数，日志正文和项目名称保存在私有工作记录中。[查看首页日历](https://ceiling-dsk.github.io/EDPS_XinlinGe/#work-log) · [查看公开统计](https://xinlin-worklog-calendar.vercel.app/api/activity)
+
+如果暂时无法获取在线统计，日历会说明连接状态，并标出备用数据的截止日期。本机旧版 Work_log 作为独立备份保留，后续在本机的修改只保存在本机。需要用旧版数据更新随站备用快照时，可在装有 Work_log 的电脑上，从本仓库根目录运行以下命令。
 
 ```sh
 python3 _tools/export_activity.py
 ```
 
-将更新后的 `assets/activity-data.js` 提交到 `main`，日历就会显示新的快照日期和每日条数。日志正文、项目名称和数据库保存在本机。使用自定义数据库路径时，可在命令末尾加上 `--database "/path/to/okr.db"`。[导出脚本](_tools/export_activity.py)
+将生成的 `assets/activity-data.js` 提交到 `main`，即可更新备用快照。自定义数据库路径可通过 `--database "/path/to/okr.db"` 指定。[导出脚本](_tools/export_activity.py)

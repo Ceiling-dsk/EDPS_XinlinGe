@@ -30,28 +30,32 @@
     return 4;
   }
 
-  function mount(host) {
-    const snapshot = window.workLogActivity;
-    if (!snapshot || !snapshot.asOf || !snapshot.days) {
-      host.textContent = "The work log is currently unavailable.";
-      return;
+  function validActivity(value) {
+    function date(value) {
+      if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+      const time = fromIso(value);
+      return Number.isFinite(time) && iso(time) === value;
     }
-    const counts = snapshot.days;
-    const recorded = Object.keys(counts).sort();
-    const today = todayInDenver();
-    const year = Number(today.slice(0, 4));
-    const firstYear = recorded.length ? Number(recorded[0].slice(0, 4)) : year;
+    return value && typeof value === "object" && Object.keys(value).sort().join(",") === "asOf,days" &&
+      date(value.asOf) && value.days && typeof value.days === "object" && !Array.isArray(value.days) &&
+      Object.entries(value.days).every(([day, count]) => date(day) && day <= value.asOf &&
+        Number.isSafeInteger(count) && count >= 0);
+  }
+
+  function mount(host) {
+    let snapshot;
+    let counts;
+    let recorded;
+    let today;
     const card = element("div", "work-activity");
     const top = element("div", "work-activity-head");
     const summary = element("div", "work-activity-summary");
     const headline = element("p", "work-activity-metric");
-    const updated = element("p", "work-activity-updated",
-      "Updated " + dateLabel.format(fromIso(snapshot.asOf)));
+    const updated = element("p", "work-activity-updated");
+    updated.setAttribute("aria-live", "polite");
     summary.append(headline, updated);
     const picker = element("select", "work-activity-picker");
     picker.setAttribute("aria-label", "Work activity date range");
-    picker.add(new Option("Past 12 months", "rolling"));
-    for (let option = year; option >= firstYear; option--) picker.add(new Option(option, option));
     top.append(summary, picker);
 
     const scroller = element("div", "work-activity-scroll");
@@ -89,7 +93,10 @@
       selected = button;
     }
 
-    function draw() {
+    function draw(preserve = false) {
+      const previousDate = preserve && selected?.dataset.date;
+      const restoreFocus = preserve && calendar.contains(document.activeElement);
+      const previousScroll = scroller.scrollLeft;
       const isRolling = picker.value === "rolling";
       const end = isRolling ? fromIso(today) : Date.UTC(Number(picker.value), 11, 31);
       // An inclusive 12-month window handles leap years as calendar dates.
@@ -113,7 +120,8 @@
         fragment.append(label);
       });
       const lastSelectable = lastDay > today ? today : lastDay;
-      const latest = active.at(-1) || (snapshot.asOf < lastSelectable && snapshot.asOf >= firstDay ? snapshot.asOf : lastSelectable);
+      const latest = previousDate && previousDate >= firstDay && previousDate <= lastSelectable ? previousDate :
+        active.at(-1) || (snapshot.asOf < lastSelectable && snapshot.asOf >= firstDay ? snapshot.asOf : lastSelectable);
       const chosen = fromIso(latest);
       selected = null;
       buttons = [];
@@ -138,13 +146,15 @@
         button.title = dateLabel.format(time) + " · " + quantity;
         button.setAttribute("aria-label", button.title);
         button.dataset.index = buttons.length;
+        button.dataset.date = key;
         buttons.push(button);
         fragment.append(button);
         if (time === chosen) select(button);
       }
       calendar.replaceChildren(fragment);
       // Start the narrow-screen view at the most recent months while keeping all weeks reachable.
-      scroller.scrollLeft = scroller.scrollWidth;
+      scroller.scrollLeft = preserve ? previousScroll : scroller.scrollWidth;
+      if (restoreFocus && selected) selected.focus({ preventScroll: true });
     }
 
     calendar.addEventListener("focusin", (event) => {
@@ -170,9 +180,68 @@
       const next = Math.max(0, Math.min(index + steps[event.key], buttons.length - 1));
       buttons[next].focus();
     });
-    picker.addEventListener("change", draw);
-    draw();
+    picker.addEventListener("change", () => draw());
+
+    return (next, label) => {
+      updated.textContent = label + dateLabel.format(fromIso(next.asOf));
+      const localDay = todayInDenver();
+      if (next === snapshot && today === localDay) return;
+      const hasPrevious = Boolean(snapshot);
+      const range = picker.value || "rolling";
+      snapshot = next;
+      counts = next.days;
+      recorded = Object.keys(counts).sort();
+      today = localDay;
+      const year = Number(today.slice(0, 4));
+      let firstYear = recorded.length ? Number(recorded[0].slice(0, 4)) : year;
+      if (range !== "rolling") firstYear = Math.min(firstYear, Number(range));
+      picker.replaceChildren(new Option("Past 12 months", "rolling"));
+      for (let option = year; option >= firstYear; option--) picker.add(new Option(option, option));
+      picker.value = range;
+      draw(hasPrevious);
+    };
   }
 
-  document.querySelectorAll("[data-activity]").forEach(mount);
+  function connect(host) {
+    let last = validActivity(window.workLogActivity) ? window.workLogActivity : null;
+    let render;
+    let receivedLive = false;
+    let pending = false;
+    function show(data, label) {
+      if (!render) render = mount(host);
+      render(data, label);
+    }
+    if (last) show(last, "Checking live counts · Saved snapshot through ");
+    else host.textContent = "Loading work activity…";
+
+    async function refresh() {
+      if (pending) return;
+      pending = true;
+      const timeout = new AbortController();
+      const timer = setTimeout(() => timeout.abort(), 8000);
+      try {
+        const feed = new URL(host.dataset.activityFeed);
+        if (feed.protocol !== "https:") throw new Error();
+        const result = await fetch(feed, { cache: "no-store", credentials: "omit", signal: timeout.signal });
+        if (!result.ok) throw new Error();
+        const data = await result.json();
+        if (!validActivity(data)) throw new Error();
+        last = data;
+        receivedLive = true;
+        show(last, "Online work log · Counts through ");
+      } catch {
+        if (last) show(last, receivedLive ? "Live refresh unavailable · Last known counts through " :
+          "Live counts unavailable · Saved snapshot through ");
+        else host.textContent = "Work activity is currently unavailable.";
+      } finally {
+        clearTimeout(timer);
+        pending = false;
+      }
+    }
+    refresh();
+    window.addEventListener("pageshow", event => { if (event.persisted) refresh(); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+    window.addEventListener("online", refresh);
+  }
+  document.querySelectorAll("[data-activity]").forEach(connect);
 })();
